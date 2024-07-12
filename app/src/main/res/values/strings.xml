@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">PhotoApp</string>
+    <string name="txttext">Descripción</string>
+    <string name="txtdescripcion" />
+    <string name="btnsave">Salvar</string>
+    <string name="btnfoto">Tomar Foto</string>
 </resources>
