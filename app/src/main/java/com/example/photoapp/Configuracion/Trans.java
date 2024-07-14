@@ -2,9 +2,9 @@ package com.example.photoapp.Configuracion;
 
 public class Trans {
 
-    public static final int Version = 1;
+    public static final int Version = 4;
 
-    public static final String DBname = "photoApp";
+    public static final String DBname = "photoApp.db";
 
     public static final String TablaFotografias = "fotos";
 
@@ -15,7 +15,7 @@ public class Trans {
 
     public static final String createTableFotos = "CREATE TABLE " + TablaFotografias + " ( " +
             id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            descripcion + "TEXT, " +
+            descripcion + " TEXT, " +
             foto + " BLOB)";
 
     public static final String SelectAllFotos = "SELECT * FROM " + TablaFotografias;
