@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     EditText descripcion;
     Button btnGuardar;
+    Button btnlista;
 
     static final int peticion_acceso_camara = 101;
     static final int peticion_captura_imagen = 102;
@@ -59,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         btnGuardar = (Button) findViewById(R.id.btnsave);
         ObjectoImagen = (ImageView) findViewById(R.id.photo);
         btncaptura = (Button) findViewById(R.id.btnfoto);
+        btnlista = (Button) findViewById(R.id.btnlista);
 
         btncaptura.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,18 +73,30 @@ public class MainActivity extends AppCompatActivity {
         btnGuardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Guardar();
+                Guardar(descripcion.getText().toString());
+                descripcion.setText("");
+                ObjectoImagen.setImageDrawable(null);
+            }
+        });
+
+        btnlista.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ListActivity.class);
+                startActivity(intent);
             }
         });
     }
 
-    private void Guardar(){
+    private void Guardar(String prm_descripcion){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
         try {
             SQLiteConexion conexion = new SQLiteConexion(this, Trans.DBname, null, Trans.Version);
             SQLiteDatabase db = conexion.getWritableDatabase();
 
             ContentValues valores = new ContentValues();
-            valores.put(Trans.descripcion, descripcion.getText().toString());
+            valores.put(Trans.descripcion, prm_descripcion);
 
             if (fotoBitmap != null) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -90,9 +105,8 @@ public class MainActivity extends AppCompatActivity {
                 valores.put(Trans.foto, fotoBytes);
             }
 
-            Long resultado = db.insert(Trans.TablaFotografias , Trans.id, valores);
+            Long resultado = db.insert(Trans.TablaFotografias , null, valores);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Registro Exitoso");
             builder.setMessage("REGISTRO INGRESADO CON EXITO ");
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -102,13 +116,25 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+            if( resultado == -1 ) {
+                builder.setTitle("Registro Fallido");
+                builder.setMessage("Ocurrió un error al guardar los datos.");
+                builder.setNegativeButton("Error", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+            }
+
+
             AlertDialog dialog = builder.create();
             dialog.show();
 
             db.close();
 
         }
-        catch (Exception ex) {
+        catch (SQLiteException ex) {
             Log.e("DB_ERROR", ex.toString());
             Toast.makeText(getApplicationContext(), "ERROR AL INGRESAR REGISTRO", Toast.LENGTH_LONG).show();
         }
